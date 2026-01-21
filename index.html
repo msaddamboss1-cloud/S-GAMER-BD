@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>S-GAMER-BD.COM | ADMIN SADDAM</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0a0a0c;
+            color: #00ffcc;
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* হেডার ডিজাইন */
+        header {
+            height: 15vh; /* উচ্চতা কিছুটা বাড়ানো হয়েছে দুই লাইনের জন্য */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 2px solid #00ffcc;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+        }
+
+        header h1 { 
+            font-size: 1.5rem; 
+            letter-spacing: 3px; 
+            text-shadow: 0 0 10px #00ffcc; 
+            color: #fff;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            letter-spacing: 5px;
+            color: #ff0055; /* অ্যাডমিন নাম হাইলাইট করতে লালচে নিওন কালার */
+            margin-top: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* ড্যাশবোর্ড */
+        #dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            overflow-y: auto;
+            height: 85vh;
+            scroll-behavior: smooth;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #00ffcc;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            background: #00ffcc;
+            color: #000;
+            transform: translateY(-10px);
+            box-shadow: 0 0 25px #00ffcc;
+        }
+
+        .game-icon { font-size: 3rem; margin-bottom: 10px; display: block; }
+
+        /* গেম উইন্ডো (পপআপ) */
+        #game-viewport {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            display: none;
+            z-index: 100;
+        }
+
+        iframe {
+            width: 100%; height: 100%;
+            border: none;
+        }
+
+        #close-btn {
+            position: absolute;
+            top: 20px; right: 20px;
+            background: #ff0055;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            z-index: 101;
+            border-radius: 5px;
+        }
+
+        /* মোবাইল স্ক্রিনের জন্য কিছু অ্যাডজাস্টমেন্ট */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.1rem; }
+            header p { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>S-GAMER-BD.COM</h1>
+        <p>ADMIN SADDAM</p>
+    </header>
+
+    <div id="dashboard">
+        </div>
+
+    <div id="game-viewport">
+        <button id="close-btn" onclick="closeGame()">CLOSE GAME</button>
+        <iframe id="game-frame" src=""></iframe>
+    </div>
+
+    <script>
+        const games = [
+            { name: "Neon Moto", icon: "🏍️", url: "https://poki.com/en/g/moto-x3m" },
+            { name: "Subway Surf", icon: "🏃", url: "https://poki.com/en/g/subway-surfers" },
+            { name: "Combat Strike", icon: "🔫", url: "https://poki.com/en/g/combat-online" },
+            { name: "Space Invaders", icon: "👾", url: "https://poki.com/en/g/space-invaders" },
+            { name: "Retro Cars", icon: "🏎️", url: "https://poki.com/en/g/mad-alin-cars-world" },
+            { name: "Tetris Quest", icon: "🧱", url: "https://tetris.com/play-tetris" },
+            { name: "Brain Out", icon: "🧠", url: "https://poki.com/en/g/brain-test-tricky-puzzles" },
+            { name: "Minecraft 2D", icon: "⛏️", url: "https://poki.com/en/g/minecraft-classic" },
+            { name: "Archery Pro", icon: "🏹", url: "https://poki.com/en/g/narrow-one" },
+            { name: "Pixel Dungeon", icon: "🏰", url: "https://poki.com/en/g/dungeon-miner" },
+            { name: "Sky Drift", icon: "✈️", url: "https://poki.com/en/g/sky-riders" },
+            { name: "Cyber Pong", icon: "🏓", url: "https://poki.com/en/g/ping-pong-chaos" }
+        ];
+
+        const dashboard = document.getElementById('dashboard');
+        const viewport = document.getElementById('game-viewport');
+        const frame = document.getElementById('game-frame');
+
+        function loadGames() {
+            games.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.onclick = () => openGame(game.url);
+                card.innerHTML = `
+                    <span class="game-icon">${game.icon}</span>
+                    <h3>${game.name}</h3>
+                `;
+                dashboard.appendChild(card);
+            });
+        }
+
+        function openGame(url) {
+            frame.src = url;
+            // সিকিউরিটি পারমিশন যোগ করা হয়েছে
+            frame.setAttribute("allow", "autoplay; fullscreen; gamepad");
+            viewport.style.display = 'block';
+        }
+
+        function closeGame() {
+            viewport.style.display = 'none';
+            frame.src = ""; 
+        }
+
+        loadGames();
+    </script>
+</body>
+</html>
